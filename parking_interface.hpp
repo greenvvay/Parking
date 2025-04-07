@@ -8,18 +8,22 @@ using TimePoint = std::chrono::steady_clock::time_point;
 
 struct GoodbyeMessage {};
 
+// Типы въезжающих машин
 enum class CarType {
     MOTORCYCLE, // Мотоциклы, скутеры
     COMPACT,    // Легковые (седаны, хэтчбеки)
     OVERSIZED,  // Грузовики, автобусы
 };
 
+// Структура, содержащая информацию об автомобиле для управления парковкой.
 struct CarInfo {
-    std::string id;
-    CarType type;
-    std::string ownerId;
+    std::string id;      // Уникальный идентификатор автомобиля (например, госномер "А123БВ").
+    CarType type;        // Тип транспортного средства из перечисления CarType
+    std::string ownerId; // Идентификатор владельца (например, ID клиента в базе данных).
 };
 
+// Интерфейс ITicket представляет абстракцию билета, который выдается при успешном въезде автомобиля на парковку. Это
+// ключевой объект для идентификации парковочной сессии и управления выездом.
 class ITicket {
 public:
     virtual ~ITicket() = default;
@@ -48,9 +52,9 @@ public:
     // въезде.
     // - outGateIdx: индекс выездного шлагбаума (должен быть корректным для данной парковки).
     // - tp: временная точка выезда (используется для расчета времени пребывания).
-    // - ticket: билет, полученный при въезде. Должен быть валидным и неиспользованным.
+    // - ticket: билет, полученный при въезде.
     virtual std::expected<GoodbyeMessage, std::string /*error text*/> tryToExit(const CarInfo& carInfo,
-        std::size_t outGateIdx, TimePoint tp, const ITicket& ticket) = 0;
+        std::size_t outGateIdx, TimePoint tp, ITicket* ticket) = 0;
 
     // Возвращает количество свободных мест
     virtual std::size_t getAvailableSpaces() const = 0;
