@@ -14,6 +14,10 @@ target_include_directories(Parking PUBLIC
     "${CMAKE_CURRENT_SOURCE_DIR}/src"
 )
 
+if(TESTS)
+    add_subdirectory(tests)
+endif()
+
 if(WIN)
     set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 endif()
