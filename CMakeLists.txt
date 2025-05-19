@@ -10,6 +10,8 @@ add_library(Parking SHARED
     ${SOURCES}
 )
 
+target_compile_definitions(Parking PRIVATE PARKING_EXPORTS)
+
 target_include_directories(Parking PUBLIC
     "${CMAKE_CURRENT_SOURCE_DIR}/src"
 )

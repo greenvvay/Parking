@@ -5,8 +5,10 @@
 #include "utils/utils.hpp"
 
 Parking::Parking(std::size_t inGatesCount, std::size_t outGatesCount, std::size_t parkingSpacesCount)
-    : _parkingSpacesCount(parkingSpacesCount){
+    : _inGatesCount(inGatesCount), _outGatesCount(outGatesCount), _parkingSpacesCount(parkingSpacesCount){
 }
+
+Parking::~Parking() = default;
 
 std::expected<std::unique_ptr<ITicket>, std::string /*error text*/> Parking::tryToEnter(const CarInfo& carInfo,
     std::size_t inGateIdx, TimePoint tp) {
@@ -17,7 +19,12 @@ std::expected<std::unique_ptr<ITicket>, std::string /*error text*/> Parking::try
         return std::unexpected("No slots available");
     }
 
+    if (inGateIdx > _inGatesCount) {
+        return std::unexpected("Wrong gate");
+    }
+
     _parkedCars.emplace(carInfo.id);
+    _parkingSpacesCount--;
 
     {
         std::lock_guard lock(_logsMtx);
@@ -35,11 +42,16 @@ std::expected<GoodbyeMessage, std::string /*error text*/> Parking::tryToExit(con
         return std::unexpected("Ticket is not yours");
     }
 
+    if (outGateIdx > _outGatesCount) {
+        return std::unexpected("Wrong gate");
+    }
+
     if (not _parkedCars.contains(ticket->id())) {
         return std::unexpected("Ticket already used");
     }
 
     _parkedCars.erase(ticket->id());
+    _parkingSpacesCount++;
 
     {
         std::lock_guard lock(_logsMtx);
